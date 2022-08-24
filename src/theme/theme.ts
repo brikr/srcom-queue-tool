@@ -1,9 +1,11 @@
 import originalStyled, { ThemedStyledInterface } from "styled-components";
 
+export { css } from "styled-components";
+
 export const theme = {
   colors: {
-    background: "#ffffff",
-    onBackground: "#000000",
+    background: "#212121",
+    onBackground: "#ffffff",
   },
 };
 
