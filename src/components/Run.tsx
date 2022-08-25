@@ -1,4 +1,4 @@
-import { DocumentSnapshot } from "firebase/firestore";
+import { DocumentSnapshot, setDoc } from "firebase/firestore";
 import React from "react";
 import { RunDoc } from "../types/firestore";
 
@@ -14,8 +14,13 @@ export const Run: React.FC<Props> = ({ runDoc, onSelect }) => {
     return <p>Loading...</p>;
   }
 
-  const handleSelect = () => {
+  const handleSelect = async () => {
     onSelect?.(run.id);
+    if (run.assignee) {
+      await setDoc(runDoc.ref, { assignee: null }, { merge: true });
+    } else {
+      await setDoc(runDoc.ref, { assignee: "test" }, { merge: true });
+    }
   };
 
   return (
@@ -23,6 +28,7 @@ export const Run: React.FC<Props> = ({ runDoc, onSelect }) => {
       <p>
         {run.category} in {run.time} by {run.runner}
       </p>
+      {run.assignee && <p>Claimed by {run.assignee}</p>}
     </div>
   );
 };

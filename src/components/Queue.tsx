@@ -11,17 +11,9 @@ interface Props {
   gameDoc: DocumentSnapshot<GameDoc>;
 }
 
-const Grid = styled.div`
-  display: flex;
-  flex-direction: row;
-`;
-
 const List = styled.div`
-  width: 300px;
-`;
-
-const RunViewContainer = styled.div`
-  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 `;
 
 export const Queue: React.FC<Props> = ({ gameDoc }) => {
@@ -29,7 +21,6 @@ export const Queue: React.FC<Props> = ({ gameDoc }) => {
     collection<RunDoc>(gameDoc.ref, "queue")
   );
   const [updating, setUpdating] = useState(false);
-  const [selectedRunId, setSelectedRunId] = useState<string>();
 
   // Update queue in firebase if needed
   useEffect(() => {
@@ -59,18 +50,11 @@ export const Queue: React.FC<Props> = ({ gameDoc }) => {
       <p>
         {queueCollection.size} runs in queue. Last updated {lastUpdated}
       </p>
-      <Grid>
-        <List>
-          {queueCollection.docs.map((doc) => (
-            <Run key={doc.data().id} runDoc={doc} onSelect={setSelectedRunId} />
-          ))}
-        </List>
-        <RunViewContainer>
-          {selectedRunId && (
-            <iframe src={`https://speedrun.com/run/${selectedRunId}`}></iframe>
-          )}
-        </RunViewContainer>
-      </Grid>
+      <List>
+        {queueCollection.docs.map((doc) => (
+          <Run key={doc.data().id} runDoc={doc} />
+        ))}
+      </List>
     </div>
   );
 };

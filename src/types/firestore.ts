@@ -18,6 +18,7 @@ export interface RunDoc {
   platform: string;
   emulated: boolean;
   region: string;
+  assignee?: string | null;
 }
 // collections:
 // viewers: ViewerCollection
