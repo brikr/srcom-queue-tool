@@ -1,3 +1,4 @@
+import { formatDistanceToNow } from "date-fns";
 import { useEffect, useState } from "react";
 import { useDocument } from "react-firebase-hooks/firestore";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
@@ -50,12 +51,17 @@ export const Game: React.FC = () => {
   // if we got this far, the doc exists, so we will assume the data is defined
   const game = gameDoc.data()!;
 
+  // Right after updating this field, it is briefly null
+  const lastUpdated = gameDoc.data()?.lastUpdated
+    ? formatDistanceToNow(gameDoc.data()!.lastUpdated.toDate())
+    : "";
+
   return (
     <Wrapper>
       <h2>
         {game.name} ({gameId})
       </h2>
-      <p>Game info last updated {game.lastUpdated.toDate().toString()}</p>
+      <p>Game info last updated {lastUpdated} ago</p>
       <Queue gameDoc={gameDoc} />
     </Wrapper>
   );

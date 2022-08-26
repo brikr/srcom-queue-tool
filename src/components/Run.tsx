@@ -2,10 +2,10 @@ import { formatDistanceToNow } from "date-fns";
 import { DocumentSnapshot, setDoc } from "firebase/firestore";
 import React, { useMemo } from "react";
 import { useRecoilState } from "recoil";
-import { parse } from "tinyduration";
 import { nameSelector } from "../recoil/name";
 import { css, styled } from "../theme";
 import { GameDoc, RunDoc } from "../types/firestore";
+import { formatDuration } from "../util/duration";
 
 interface Props {
   runDoc: DocumentSnapshot<RunDoc>;
@@ -68,30 +68,10 @@ export const Run: React.FC<Props> = ({ runDoc, gameDoc }) => {
   const run = useMemo(() => {
     const category = game?.categories[unmappedRun.category].name;
 
-    const parsedTime = parse(unmappedRun.time);
-
-    const hours = parsedTime.hours ? `${parsedTime.hours}:` : "";
-    let minutes = "0:";
-    if (parsedTime.minutes) {
-      minutes = `${parsedTime.minutes}:`;
-      if (parsedTime.hours && parsedTime.minutes < 10) {
-        minutes = `0${minutes}`;
-      }
-    }
-    let seconds = "00";
-    if (parsedTime.seconds) {
-      seconds = String(parsedTime.seconds);
-      if (parsedTime.minutes && parsedTime.seconds < 10) {
-        seconds = `0${seconds}`;
-      }
-    }
-
-    const time = `${hours}${minutes}${seconds}`;
-
     return {
       ...unmappedRun,
       category,
-      time,
+      time: formatDuration(unmappedRun.time),
     };
   }, [unmappedRun, game]);
 

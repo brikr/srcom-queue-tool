@@ -1,3 +1,4 @@
+import { formatDistanceToNow } from "date-fns";
 import { DocumentSnapshot, orderBy, query } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { useCollection } from "react-firebase-hooks/firestore";
@@ -72,13 +73,14 @@ export const Queue: React.FC<Props> = ({ gameDoc }) => {
   }
 
   // Right after updating this field, it is briefly null
-  const lastUpdated =
-    gameDoc.data()?.queueLastUpdated?.toDate().toString() ?? "";
+  const lastUpdated = gameDoc.data()?.queueLastUpdated
+    ? formatDistanceToNow(gameDoc.data()!.queueLastUpdated.toDate())
+    : "";
 
   return (
     <div>
       <p>
-        {queueCollection.size} runs in queue. Last updated {lastUpdated}
+        {queueCollection.size} runs in queue. Last updated {lastUpdated} ago
       </p>
       <button onClick={handleUpdateQueueClick}>Update queue now</button>
       <button onClick={handleCopyVODsClick}>{copyButtonText}</button>
