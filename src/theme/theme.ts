@@ -4,8 +4,10 @@ export { css } from "styled-components";
 
 export const theme = {
   colors: {
-    background: "#212121",
+    background: "#303030",
     onBackground: "#ffffff",
+    card: "#424242",
+    onCard: "#ffffff",
   },
 };
 

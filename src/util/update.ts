@@ -33,7 +33,7 @@ export async function updateGameQueue(gameDoc: DocumentSnapshot<GameDoc>) {
   const promises = [];
   for (const run of runs) {
     const runDocRef = doc<RunDoc>(queueCollection, run.id);
-    promises.push(setDoc(runDocRef, run));
+    promises.push(setDoc(runDocRef, run, { merge: true }));
   }
 
   await Promise.all(promises);

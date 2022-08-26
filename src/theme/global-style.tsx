@@ -5,6 +5,7 @@ const GlobalStyle = createGlobalStyle<{ theme: Theme }>`
   ${({ theme }) => css`
     body {
       margin: 0;
+      padding: 0 10px;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
         "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
         "Helvetica Neue", sans-serif;

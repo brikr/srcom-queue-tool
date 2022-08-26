@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useDocument } from "react-firebase-hooks/firestore";
-import { useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { useRecoilState } from "recoil";
 import { Queue } from "../components/Queue";
+import { nameSelector } from "../recoil/name";
 import { styled } from "../theme";
 import { GameDoc } from "../types/firestore";
 import { collection, doc } from "../util/firestore";
@@ -13,7 +15,12 @@ const Wrapper = styled.div`
 
 export const Game: React.FC = () => {
   const { gameId } = useParams();
-  // const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const [name] = useRecoilState(nameSelector);
+
+  if (name === "" || gameId === "") {
+    return <Navigate to="/" replace={true} />;
+  }
 
   const [gameDoc, loading, error] = useDocument<GameDoc>(
     doc(collection(undefined, "games"), gameId!)

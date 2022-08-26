@@ -33,6 +33,12 @@ export const Queue: React.FC<Props> = ({ gameDoc }) => {
     })();
   }, [gameDoc]);
 
+  const handleUpdateQueueClick = async () => {
+    setUpdating(true);
+    await updateGameQueue(gameDoc);
+    setUpdating(false);
+  };
+
   if (loading || !queueCollection) {
     return <p>Loading...</p>;
   }
@@ -50,9 +56,10 @@ export const Queue: React.FC<Props> = ({ gameDoc }) => {
       <p>
         {queueCollection.size} runs in queue. Last updated {lastUpdated}
       </p>
+      <button onClick={handleUpdateQueueClick}>Update queue now</button>
       <List>
         {queueCollection.docs.map((doc) => (
-          <Run key={doc.data().id} runDoc={doc} />
+          <Run key={doc.data().id} runDoc={doc} gameDoc={gameDoc} />
         ))}
       </List>
     </div>
