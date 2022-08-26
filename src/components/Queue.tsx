@@ -54,7 +54,8 @@ export const Queue: React.FC<Props> = ({ gameDoc }) => {
 
     const vodsAssignedToMe = queueCollection.docs
       .filter((doc) => doc.data().assignee === name)
-      .map((doc) => doc.data().videos[0]);
+      .map((doc) => doc.data().videos)
+      .flat();
     await navigator.clipboard.writeText(vodsAssignedToMe.join("\n"));
     setCopyButtonText("Copied to clipboard");
     setTimeout(() => {
