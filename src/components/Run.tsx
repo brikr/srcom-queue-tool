@@ -1,3 +1,4 @@
+import { formatDistanceToNow } from "date-fns";
 import { DocumentSnapshot, setDoc } from "firebase/firestore";
 import React, { useMemo } from "react";
 import { useRecoilState } from "recoil";
@@ -13,9 +14,9 @@ interface Props {
 
 const Card = styled.div`
   ${({ theme }) => css`
-    width: 500px;
+    width: 600px;
     margin: 10px 0;
-    padding: 10px;
+    padding: 10px 30px 10px 10px;
     border-radius: 5px;
 
     display: flex;
@@ -35,6 +36,23 @@ const Card = styled.div`
 
     cursor: pointer;
   `}
+`;
+
+const CardContent = styled.div`
+  flex-grow: 1;
+`;
+
+const MainInfo = styled.div`
+  width: 100%;
+
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: space-between;
+`;
+
+const ClaimedText = styled.p`
+  margin-top: 0;
 `;
 
 export const Run: React.FC<Props> = ({ runDoc, gameDoc }) => {
@@ -100,15 +118,18 @@ export const Run: React.FC<Props> = ({ runDoc, gameDoc }) => {
       <input
         type="checkbox"
         checked={Boolean(run.assignee)}
-        disabled={run.assignee !== name}
+        disabled={Boolean(run.assignee) && run.assignee !== name}
         readOnly
       />
-      <div>
-        <p>
-          {run.category} in {run.time} by {run.runner}
-        </p>
-        {run.assignee && <p>Claimed by {run.assignee}</p>}
-      </div>
+      <CardContent>
+        <MainInfo>
+          <p>
+            {run.category} in {run.time} by {run.runner}
+          </p>
+          <p>Submitted {formatDistanceToNow(run.submitted.toDate())} ago</p>
+        </MainInfo>
+        {run.assignee && <ClaimedText>Claimed by {run.assignee}</ClaimedText>}
+      </CardContent>
     </Card>
   );
 };

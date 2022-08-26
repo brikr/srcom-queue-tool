@@ -1,4 +1,4 @@
-import { DocumentSnapshot } from "firebase/firestore";
+import { DocumentSnapshot, orderBy, query } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { useRecoilState } from "recoil";
@@ -22,7 +22,7 @@ const DEFAULT_COPY_BUTTON_TEXT = "Copy claimed VOD URLs";
 
 export const Queue: React.FC<Props> = ({ gameDoc }) => {
   const [queueCollection, loading, error] = useCollection<RunDoc>(
-    collection<RunDoc>(gameDoc.ref, "queue")
+    query(collection<RunDoc>(gameDoc.ref, "queue"), orderBy("submitted", "asc"))
   );
   const [name] = useRecoilState(nameSelector);
   const [updating, setUpdating] = useState(false);
