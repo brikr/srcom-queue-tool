@@ -1,6 +1,10 @@
 import {
+  deleteDoc,
+  DocumentReference,
   DocumentSnapshot,
   getDoc,
+  getDocs,
+  QueryDocumentSnapshot,
   serverTimestamp,
   setDoc,
   Timestamp,
@@ -26,16 +30,36 @@ export async function updateGameQueue(gameDoc: DocumentSnapshot<GameDoc>) {
     return;
   }
 
-  const runs = await getAllUnverifiedRuns(game.srcomId);
-
   const queueCollection = collection<RunDoc>(gameDoc.ref, "queue");
+
+  // make a map of all doc ids in the collection, and we will remove them if we see them from the srcom api
+  const runsToRemove = (await getDocs(queueCollection)).docs.reduce(
+    (
+      map: Map<string, DocumentReference<RunDoc>>,
+      runDoc: QueryDocumentSnapshot<RunDoc>
+    ) => {
+      map.set(runDoc.id, runDoc.ref);
+      return map;
+    },
+    new Map<string, DocumentReference<RunDoc>>()
+  );
+
+  const runs = await getAllUnverifiedRuns(game.srcomId);
 
   const promises = [];
   for (const run of runs) {
+    // this run is unverified so we don't want to remove it at the end
+    runsToRemove.delete(run.id);
     const runDocRef = doc<RunDoc>(queueCollection, run.id);
     promises.push(setDoc(runDocRef, run, { merge: true }));
   }
 
+  // delete all docs still in runsToRemove, because they have been verified
+  runsToRemove.forEach((removeRef) => {
+    promises.push(deleteDoc(removeRef));
+  });
+
+  // settle all sets/deletes
   await Promise.all(promises);
 
   // update queueLastUpdated
