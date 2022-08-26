@@ -5,6 +5,23 @@ import { ApiGame, ApiRun, ApiRuns } from "../types/srcom";
 
 const API_BASE = "https://www.speedrun.com/api/v1";
 
+// Sanitize a video URL
+// Removes all URL params other than `v`
+function sanitizeVideoUrl(urlString: string): string {
+  try {
+    const url = new URL(urlString);
+    const newSearchParams = new URLSearchParams();
+    if (url.searchParams.has("v")) {
+      newSearchParams.set("v", url.searchParams.get("v")!);
+    }
+    url.search = newSearchParams.toString();
+    return url.toString();
+  } catch (e) {
+    // Not a valid URL. Just pass through for now
+    return urlString;
+  }
+}
+
 function mapApiRun(apiRun: ApiRun): RunDoc {
   const run: RunDoc = {
     id: apiRun.id,
@@ -16,6 +33,7 @@ function mapApiRun(apiRun: ApiRun): RunDoc {
     platform: apiRun.system.platform, // TODO
     emulated: apiRun.system.emulated,
     region: apiRun.system.region, // TODO
+    videos: apiRun.videos.links.map((link) => sanitizeVideoUrl(link.uri)),
   };
 
   return run;

@@ -23,6 +23,11 @@ export interface ApiRun {
     region: string;
   };
   values: { [key: string]: string };
+  videos: {
+    links: Array<{
+      uri: string;
+    }>;
+  };
 }
 
 export interface ApiUser {

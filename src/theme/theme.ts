@@ -13,4 +13,4 @@ export const theme = {
 
 export type Theme = typeof theme;
 
-export const styled = originalStyled as ThemedStyledInterface<typeof theme>;
+export const styled = originalStyled as ThemedStyledInterface<Theme>;

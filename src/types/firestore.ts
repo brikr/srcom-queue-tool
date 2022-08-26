@@ -19,6 +19,7 @@ export interface RunDoc {
   emulated: boolean;
   region: string;
   assignee?: string | null;
+  videos: string[];
 }
 // collections:
 // viewers: ViewerCollection

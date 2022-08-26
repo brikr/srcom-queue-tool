@@ -37,11 +37,6 @@ const Card = styled.div`
   `}
 `;
 
-const Anchor = styled.a`
-  width: 0; // other elements will grow inside it
-  text-decoration: none;
-`;
-
 export const Run: React.FC<Props> = ({ runDoc, gameDoc }) => {
   const [name] = useRecoilState(nameSelector);
 
@@ -83,7 +78,6 @@ export const Run: React.FC<Props> = ({ runDoc, gameDoc }) => {
   }, [unmappedRun, game]);
 
   const assignedToMe = run.assignee === name;
-  const runUrl = `https://speedrun.com/run/${run.id}`;
 
   const handleSelect = async () => {
     if (assignedToMe) {
@@ -102,25 +96,19 @@ export const Run: React.FC<Props> = ({ runDoc, gameDoc }) => {
   };
 
   return (
-    <Anchor
-      href={assignedToMe ? "javascript:void(0)" : runUrl}
-      target={assignedToMe ? "" : "_blank"}
-      rel="noreferrer"
-    >
-      <Card onClick={handleSelect}>
-        <input
-          type="checkbox"
-          checked={Boolean(run.assignee)}
-          disabled={run.assignee !== name}
-          readOnly
-        />
-        <div>
-          <p>
-            {run.category} in {run.time} by {run.runner}
-          </p>
-          {run.assignee && <p>Claimed by {run.assignee}</p>}
-        </div>
-      </Card>
-    </Anchor>
+    <Card onClick={handleSelect}>
+      <input
+        type="checkbox"
+        checked={Boolean(run.assignee)}
+        disabled={run.assignee !== name}
+        readOnly
+      />
+      <div>
+        <p>
+          {run.category} in {run.time} by {run.runner}
+        </p>
+        {run.assignee && <p>Claimed by {run.assignee}</p>}
+      </div>
+    </Card>
   );
 };
