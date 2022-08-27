@@ -33,7 +33,8 @@ function mapApiRun(apiRun: ApiRun): RunDoc {
     platform: apiRun.system.platform, // TODO
     emulated: apiRun.system.emulated,
     region: apiRun.system.region, // TODO
-    videos: apiRun.videos.links.map((link) => sanitizeVideoUrl(link.uri)),
+    videos:
+      apiRun.videos.links?.map((link) => sanitizeVideoUrl(link.uri)) ?? [],
   };
 
   return run;
@@ -85,7 +86,7 @@ export async function getAllUnverifiedRuns(gameId: string): Promise<RunDoc[]> {
     }
   }
 
-  // Convert ApiRuns[] into Run[] and calculate flags
+  // Convert ApiRuns[] into RunDoc[]
   return runs.reduce<RunDoc[]>((acc, val) => {
     const mapped = val.map<RunDoc>(mapApiRun);
 

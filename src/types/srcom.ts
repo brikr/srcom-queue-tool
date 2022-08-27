@@ -24,7 +24,7 @@ export interface ApiRun {
   };
   values: { [key: string]: string };
   videos: {
-    links: Array<{
+    links?: Array<{
       uri: string;
     }>;
   };
