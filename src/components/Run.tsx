@@ -105,6 +105,7 @@ export const Run: React.FC<Props> = ({ runDoc, gameDoc }) => {
         <MainInfo>
           <p>
             {run.category} in {run.time} by {run.runner}
+            {run.videos.length === 0 && " (no video)"}
           </p>
           <p>Submitted {formatDistanceToNow(run.submitted.toDate())} ago</p>
         </MainInfo>
