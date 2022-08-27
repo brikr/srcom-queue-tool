@@ -23,7 +23,6 @@ function sanitizeVideoUrl(urlString: string): string {
 }
 
 function mapApiRunVideos(apiRun: ApiRun): string[] {
-  console.log(apiRun.videos);
   if (apiRun.videos?.links) {
     // we have nice links, just sanitize em and return
     return apiRun.videos.links.map((link) => sanitizeVideoUrl(link.uri));
@@ -59,7 +58,6 @@ function mapApiRun(apiRun: ApiRun): RunDoc {
     region: apiRun.system.region, // TODO
     videos: mapApiRunVideos(apiRun),
   };
-  console.log(run.videos);
 
   return run;
 }
