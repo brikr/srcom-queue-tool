@@ -22,6 +22,30 @@ function sanitizeVideoUrl(urlString: string): string {
   }
 }
 
+function mapApiRunVideos(apiRun: ApiRun): string[] {
+  console.log(apiRun.videos);
+  if (apiRun.videos?.links) {
+    // we have nice links, just sanitize em and return
+    return apiRun.videos.links.map((link) => sanitizeVideoUrl(link.uri));
+  } else if (apiRun.videos?.text) {
+    // there is text that is either a comment about no video (banned) or maybe just a url without protocol
+    // try adding protocol and see if it's a valid url
+    const maybeUrlString = `https://${apiRun.videos.text}`;
+    try {
+      const url = new URL(maybeUrlString);
+
+      // if we get here, it is a url! sanitize and return
+      return [sanitizeVideoUrl(url.toString())];
+    } catch (e) {
+      // it still isn't a url, assume no video
+      return [];
+    }
+  } else {
+    // can't find shit
+    return [];
+  }
+}
+
 function mapApiRun(apiRun: ApiRun): RunDoc {
   const run: RunDoc = {
     id: apiRun.id,
@@ -33,9 +57,9 @@ function mapApiRun(apiRun: ApiRun): RunDoc {
     platform: apiRun.system.platform, // TODO
     emulated: apiRun.system.emulated,
     region: apiRun.system.region, // TODO
-    videos:
-      apiRun.videos.links?.map((link) => sanitizeVideoUrl(link.uri)) ?? [],
+    videos: mapApiRunVideos(apiRun),
   };
+  console.log(run.videos);
 
   return run;
 }
