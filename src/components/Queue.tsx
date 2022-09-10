@@ -1,12 +1,11 @@
 import { formatDistanceToNow } from "date-fns";
-import { DocumentSnapshot, orderBy, query } from "firebase/firestore";
+import { DocumentSnapshot } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
-import { useCollection } from "react-firebase-hooks/firestore";
 import { useRecoilState } from "recoil";
+import { useQueueView } from "../hooks/queueView";
 import { nameSelector } from "../recoil/name";
 import { styled } from "../theme";
-import { GameDoc, RunDoc } from "../types/firestore";
-import { collection } from "../util/firestore";
+import { GameDoc } from "../types/firestore";
 import { shouldUpdateGameQueue, updateGameQueue } from "../util/update";
 import { Run } from "./Run";
 
@@ -22,9 +21,8 @@ const List = styled.div`
 const DEFAULT_COPY_BUTTON_TEXT = "Copy claimed VOD URLs";
 
 export const Queue: React.FC<Props> = ({ gameDoc }) => {
-  const [queueCollection, loading, error] = useCollection<RunDoc>(
-    query(collection<RunDoc>(gameDoc.ref, "queue"), orderBy("submitted", "asc"))
-  );
+  const { runs, runsAssignedToMe, hiddenRuns, loading, error } =
+    useQueueView(gameDoc);
   const [name] = useRecoilState(nameSelector);
   const [updating, setUpdating] = useState(false);
   const [copyButtonText, setCopyButtonText] = useState(
@@ -49,13 +47,8 @@ export const Queue: React.FC<Props> = ({ gameDoc }) => {
   };
 
   const handleCopyVODsClick = async () => {
-    if (!queueCollection) {
-      return;
-    }
-
-    const vodsAssignedToMe = queueCollection.docs
-      .filter((doc) => doc.data().assignee === name)
-      .map((doc) => doc.data().videos)
+    const vodsAssignedToMe = runsAssignedToMe
+      .map((run) => run.data().videos)
       .flat();
     await navigator.clipboard.writeText(vodsAssignedToMe.join("\n"));
     setCopyButtonText("Copied to clipboard");
@@ -64,7 +57,7 @@ export const Queue: React.FC<Props> = ({ gameDoc }) => {
     }, 2000);
   };
 
-  if (loading || !queueCollection) {
+  if (loading) {
     return <p>Loading...</p>;
   }
 
@@ -78,17 +71,32 @@ export const Queue: React.FC<Props> = ({ gameDoc }) => {
     : "";
 
   return (
-    <div>
+    <>
+      <h2>Queue</h2>
       <p>
-        {queueCollection.size} runs in queue. Last updated {lastUpdated} ago
+        {runs.length} runs in queue. Last updated {lastUpdated} ago
       </p>
       <button onClick={handleUpdateQueueClick}>Update queue now</button>
       <button onClick={handleCopyVODsClick}>{copyButtonText}</button>
       <List>
-        {queueCollection.docs.map((doc) => (
-          <Run key={doc.data().id} runDoc={doc} gameDoc={gameDoc} />
+        {runs.map((runDoc) => (
+          <Run key={runDoc.id} runDoc={runDoc} gameDoc={gameDoc} />
         ))}
       </List>
-    </div>
+      {hiddenRuns.length > 0 && (
+        <>
+          <h2>Hidden runs</h2>
+          <p>
+            Only you can see these. If they are verified, they will go away once
+            the speedrun.com API updates
+          </p>
+          <List>
+            {hiddenRuns.map((runDoc) => (
+              <Run key={runDoc.id} runDoc={runDoc} gameDoc={gameDoc} />
+            ))}
+          </List>
+        </>
+      )}
+    </>
   );
 };

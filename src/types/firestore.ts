@@ -20,6 +20,7 @@ export interface RunDoc {
   region: string;
   assignee?: string | null;
   videos: string[];
+  hidden?: boolean;
 }
 // collections:
 // viewers: ViewerCollection

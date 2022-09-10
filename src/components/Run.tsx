@@ -42,7 +42,7 @@ const CardContent = styled.div`
   flex-grow: 1;
 `;
 
-const MainInfo = styled.div`
+const CardRow = styled.div`
   width: 100%;
 
   display: flex;
@@ -79,7 +79,11 @@ export const Run: React.FC<Props> = ({ runDoc, gameDoc }) => {
 
   const handleSelect = async () => {
     if (assignedToMe) {
-      await setDoc(runDoc.ref, { assignee: null }, { merge: true });
+      await setDoc(
+        runDoc.ref,
+        { assignee: null, hidden: false }, // always show a run if unassigning
+        { merge: true }
+      );
     } else if (
       // run not assigned, or
       !run.assignee ||
@@ -93,6 +97,20 @@ export const Run: React.FC<Props> = ({ runDoc, gameDoc }) => {
     }
   };
 
+  const handleHideRun = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    // don't fire handleSelect event
+    e.stopPropagation();
+
+    await setDoc(runDoc.ref, { hidden: true }, { merge: true });
+  };
+
+  const handleShowRun = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    // don't fire handleSelect event
+    e.stopPropagation();
+
+    await setDoc(runDoc.ref, { hidden: false }, { merge: true });
+  };
+
   return (
     <Card onClick={handleSelect}>
       <input
@@ -102,14 +120,22 @@ export const Run: React.FC<Props> = ({ runDoc, gameDoc }) => {
         readOnly
       />
       <CardContent>
-        <MainInfo>
+        <CardRow>
           <p>
             {run.category} in {run.time} by {run.runner}
             {run.videos.length === 0 && " (no video)"}
           </p>
           <p>Submitted {formatDistanceToNow(run.submitted.toDate())} ago</p>
-        </MainInfo>
-        {run.assignee && <ClaimedText>Claimed by {run.assignee}</ClaimedText>}
+        </CardRow>
+        <CardRow>
+          {run.assignee && <ClaimedText>Claimed by {run.assignee}</ClaimedText>}
+          {assignedToMe &&
+            (run.hidden ? (
+              <button onClick={handleShowRun}>Show run (woops)</button>
+            ) : (
+              <button onClick={handleHideRun}>Hide run (mark verified)</button>
+            ))}
+        </CardRow>
       </CardContent>
     </Card>
   );
