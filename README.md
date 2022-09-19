@@ -1,5 +1,3 @@
-# Brik's CRA Template
-This is my template for a basic React app that I use for my other projects. It has the following:
-- TypeScript React
-- ESLint with Prettier
-- styled-components with theme + global styles
+# srcom-queue-tool
+
+This tool is for browsing moderation queues for games on speedrun.com and claiming runs that intend to validate
