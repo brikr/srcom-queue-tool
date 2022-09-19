@@ -1,11 +1,14 @@
 import { FormEvent, useRef } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
 import { useRecoilState } from "recoil";
+import { auth } from "../firebase";
 import { nameSelector } from "../recoil/name";
 
 export const Home: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [name, setName] = useRecoilState(nameSelector);
+  const [user, loading, error] = useAuthState(auth);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -21,7 +24,7 @@ export const Home: React.FC = () => {
       <h1>speedrun.com queue tool</h1>
       {name ? (
         <>
-          <p>Welcome {name}</p>
+          <p title={user?.uid}>Welcome {name}</p>
           <button onClick={handleResetName}>Reset name</button>
         </>
       ) : (

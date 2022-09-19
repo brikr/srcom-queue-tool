@@ -1,4 +1,5 @@
 import { atom, DefaultValue, selector } from "recoil";
+import { clearName, setName } from "../util/user";
 
 const nameAtom = atom<string>({
   key: "nameAtom",
@@ -14,15 +15,16 @@ export const nameSelector = selector<string>({
       return name;
     }
 
+    // initial page load, pull from local storage
     const localStorageName = localStorage.getItem("name");
     return localStorageName ?? "";
   },
   set: ({ set }, name) => {
     set(nameAtom, name);
-    if (name instanceof DefaultValue) {
-      localStorage.removeItem("name");
+    if (name instanceof DefaultValue || name === "") {
+      clearName();
     } else {
-      localStorage.setItem("name", name);
+      setName(name);
     }
   },
 });

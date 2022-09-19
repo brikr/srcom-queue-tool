@@ -72,6 +72,10 @@ export interface GameCollection {
   [gameId: string]: GameDoc;
 }
 
-export interface FirestoreRoot {
-  games: GameCollection;
+export interface UserDoc {
+  name: string;
+}
+
+export interface UserCollection {
+  [userId: string]: UserDoc;
 }
