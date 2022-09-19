@@ -2,8 +2,22 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /{document=**} {
-      allow read, write: if
-          request.time < timestamp.date(2022, 9, 20);
+      // reading anything is ok
+      allow read: if true;
+    }
+
+    match /games/{document=**} {
+    	// only verified users can write to games
+      allow write: if userIsVerified()
+    }
+
+    match /users/{userId} {
+      allow read, update, delete: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null;
+    }
+
+    function userIsVerified() {
+    	return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.name is string
     }
   }
 }
