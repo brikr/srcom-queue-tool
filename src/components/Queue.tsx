@@ -1,11 +1,11 @@
 import { formatDistanceToNow } from "date-fns";
-import { DocumentSnapshot } from "firebase/firestore";
-import React, { useEffect, useState } from "react";
-import { useRecoilState } from "recoil";
+import { DocumentSnapshot, QueryDocumentSnapshot } from "firebase/firestore";
+import React, { useEffect, useRef, useState } from "react";
 import { useQueueView } from "../hooks/queueView";
-import { nameSelector } from "../recoil/name";
+import { useLocalStorage } from "../hooks/useLocalStorage";
 import { styled } from "../theme";
-import { GameDoc } from "../types/firestore";
+import { GameDoc, RunDoc } from "../types/firestore";
+import { durationToMillis } from "../util/duration";
 import { shouldUpdateGameQueue, updateGameQueue } from "../util/update";
 import { Run } from "./Run";
 
@@ -18,15 +18,42 @@ const List = styled.div`
   flex-direction: column;
 `;
 
+const Controls = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+`;
+
 const DEFAULT_COPY_BUTTON_TEXT = "Copy claimed VOD URLs";
+
+const COPY_SORTERS = {
+  submitted: (
+    runA: QueryDocumentSnapshot<RunDoc>,
+    runB: QueryDocumentSnapshot<RunDoc>
+  ) => {
+    return runA.data().submitted.toMillis() - runB.data().submitted.toMillis();
+  },
+  duration: (
+    runA: QueryDocumentSnapshot<RunDoc>,
+    runB: QueryDocumentSnapshot<RunDoc>
+  ) => {
+    const aMs = durationToMillis(runA.data().time);
+    const bMs = durationToMillis(runB.data().time);
+    return aMs - bMs;
+  },
+};
 
 export const Queue: React.FC<Props> = ({ gameDoc }) => {
   const { runs, runsAssignedToMe, hiddenRuns, loading, error } =
     useQueueView(gameDoc);
-  const [name] = useRecoilState(nameSelector);
   const [updating, setUpdating] = useState(false);
   const [copyButtonText, setCopyButtonText] = useState(
     DEFAULT_COPY_BUTTON_TEXT
+  );
+  const copyOrderRef = useRef<HTMLSelectElement>(null);
+  const [preferredCopyOrder, setPreferredCopyOrder] = useLocalStorage(
+    "preferredCopyOrder",
+    "submitted"
   );
 
   // Update queue in firebase if needed
@@ -47,7 +74,10 @@ export const Queue: React.FC<Props> = ({ gameDoc }) => {
   };
 
   const handleCopyVODsClick = async () => {
+    const sortOrder = copyOrderRef.current!.value as "submitted" | "duration";
+
     const vodsAssignedToMe = runsAssignedToMe
+      .sort(COPY_SORTERS[sortOrder])
       .filter((run) => !run.data().hidden)
       .map((run) => run.data().videos)
       .flat();
@@ -56,6 +86,12 @@ export const Queue: React.FC<Props> = ({ gameDoc }) => {
     setTimeout(() => {
       setCopyButtonText(DEFAULT_COPY_BUTTON_TEXT);
     }, 2000);
+  };
+
+  const handleChangePreferredCopyOrder = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    setPreferredCopyOrder(e.target.value);
   };
 
   if (loading) {
@@ -77,8 +113,20 @@ export const Queue: React.FC<Props> = ({ gameDoc }) => {
       <p>
         {runs.length} runs in queue. Last updated {lastUpdated} ago
       </p>
-      <button onClick={handleUpdateQueueClick}>Update queue now</button>
-      <button onClick={handleCopyVODsClick}>{copyButtonText}</button>
+      <Controls>
+        <button onClick={handleUpdateQueueClick}>Update queue now</button>
+        <button onClick={handleCopyVODsClick}>{copyButtonText}</button>
+        <label htmlFor="copyOrder">VOD URL order:</label>
+        <select
+          ref={copyOrderRef}
+          id="copyOrder"
+          defaultValue={preferredCopyOrder}
+          onChange={handleChangePreferredCopyOrder}
+        >
+          <option value="submitted">Submission time (earliest first)</option>
+          <option value="duration">Run duration (shortest first)</option>
+        </select>
+      </Controls>
       <List>
         {runs.map((runDoc) => (
           <Run key={runDoc.id} runDoc={runDoc} gameDoc={gameDoc} />
