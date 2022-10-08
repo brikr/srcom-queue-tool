@@ -48,6 +48,7 @@ export const Queue: React.FC<Props> = ({ gameDoc }) => {
 
   const handleCopyVODsClick = async () => {
     const vodsAssignedToMe = runsAssignedToMe
+      .filter((run) => !run.data().hidden)
       .map((run) => run.data().videos)
       .flat();
     await navigator.clipboard.writeText(vodsAssignedToMe.join("\n"));
