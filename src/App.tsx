@@ -11,9 +11,9 @@ import GlobalStyle from "./theme/global-style";
 const App: React.FC = () => {
   return (
     <RecoilRoot>
-      <AuthWrapper>
-        <ThemeProvider theme={theme}>
-          <GlobalStyle />
+      <ThemeProvider theme={theme}>
+        <GlobalStyle />
+        <AuthWrapper>
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Home />} />
@@ -21,8 +21,8 @@ const App: React.FC = () => {
               <Route path="*" element={<Navigate to="/" />}></Route>
             </Routes>
           </BrowserRouter>
-        </ThemeProvider>
-      </AuthWrapper>
+        </AuthWrapper>
+      </ThemeProvider>
     </RecoilRoot>
   );
 };
