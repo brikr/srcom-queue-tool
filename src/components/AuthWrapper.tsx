@@ -1,6 +1,6 @@
 import { isBefore } from "date-fns";
 import { signInAnonymously } from "firebase/auth";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
 import { auth } from "../firebase";
 import { nameSelector } from "../recoil/name";
@@ -8,6 +8,8 @@ import { setName } from "../util/user";
 
 export const AuthWrapper: React.FC = ({ children }) => {
   const [name] = useRecoilState(nameSelector);
+
+  const [authenticating, setAuthenticating] = useState(true);
 
   useEffect(() => {
     (async () => {
@@ -24,8 +26,14 @@ export const AuthWrapper: React.FC = ({ children }) => {
         // first sign in, or they haven't signed in since auth was added. setup user doc with name
         setName(name);
       }
+
+      setAuthenticating(false);
     })();
   }, []);
+
+  if (authenticating) {
+    return <p>Loading...</p>;
+  }
 
   return <>{children}</>;
 };
