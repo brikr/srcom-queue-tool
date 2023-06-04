@@ -51,6 +51,7 @@ export const Queue: React.FC<Props> = ({ gameDoc }) => {
     runs,
     runsAssignedToMeOrNoOne,
     runsAssignedToMe,
+    runsAssignedToNoOne,
     hiddenRuns,
     loading,
     error,
@@ -134,7 +135,8 @@ export const Queue: React.FC<Props> = ({ gameDoc }) => {
     <>
       <h2>Queue</h2>
       <p>
-        {runs.length} runs in queue. Last updated {lastUpdated} ago.
+        {runs.length} runs in queue ({runsAssignedToNoOne.length} unclaimed).
+        Last updated {lastUpdated} ago.
       </p>
       <p>
         Ctrl- or middle-click a run to open its speedrun.com page in a new tab

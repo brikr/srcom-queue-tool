@@ -18,6 +18,8 @@ interface QueueView {
   runsAssignedToMeOrNoOne: QueryDocumentSnapshot<RunDoc>[];
   // all runs assigned to current user
   runsAssignedToMe: QueryDocumentSnapshot<RunDoc>[];
+  // all runs with no assignee
+  runsAssignedToNoOne: QueryDocumentSnapshot<RunDoc>[];
   // all hidden runs assigned to current user
   hiddenRuns: QueryDocumentSnapshot<RunDoc>[];
   // these two are passed through from firestore hook
@@ -37,6 +39,7 @@ export function useQueueView(gameDoc: DocumentSnapshot<GameDoc>): QueueView {
       runs: [],
       runsAssignedToMeOrNoOne: [],
       runsAssignedToMe: [],
+      runsAssignedToNoOne: [],
       hiddenRuns: [],
       loading,
       error,
@@ -49,7 +52,8 @@ export function useQueueView(gameDoc: DocumentSnapshot<GameDoc>): QueueView {
   // runs assigned to current user and no one (shown if they choose to hide runs claimed by others)
   const runsAssignedToMeOrNoOne = queueCollection.docs.filter(
     (runDoc) =>
-      runDoc.data().assignee === name || runDoc.data().assignee === undefined
+      runDoc.data().assignee === name ||
+      Boolean(runDoc.data().assignee) === false
   );
 
   // runs assigned to current user
@@ -57,13 +61,19 @@ export function useQueueView(gameDoc: DocumentSnapshot<GameDoc>): QueueView {
     (runDoc) => runDoc.data().assignee === name
   );
 
+  // runs assigned to no one
+  const runsAssignedToNoOne = queueCollection.docs.filter(
+    (runDoc) => Boolean(runDoc.data().assignee) === false
+  );
+
   // hidden runs assigned to current user
   const hiddenRuns = runsAssignedToMe.filter((run) => run.data().hidden);
 
   return {
     runs,
-    runsAssignedToMe,
     runsAssignedToMeOrNoOne,
+    runsAssignedToMe,
+    runsAssignedToNoOne,
     hiddenRuns,
     loading,
     error,
