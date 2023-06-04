@@ -14,6 +14,8 @@ import { nameSelector } from "./../recoil/name";
 interface QueueView {
   // all non-hidden runs
   runs: QueryDocumentSnapshot<RunDoc>[];
+  // all runs assigned to current user or not assigned
+  runsAssignedToMeOrNoOne: QueryDocumentSnapshot<RunDoc>[];
   // all runs assigned to current user
   runsAssignedToMe: QueryDocumentSnapshot<RunDoc>[];
   // all hidden runs assigned to current user
@@ -32,8 +34,9 @@ export function useQueueView(gameDoc: DocumentSnapshot<GameDoc>): QueueView {
 
   if (loading || error || !queueCollection) {
     return {
-      runsAssignedToMe: [],
       runs: [],
+      runsAssignedToMeOrNoOne: [],
+      runsAssignedToMe: [],
       hiddenRuns: [],
       loading,
       error,
@@ -42,6 +45,12 @@ export function useQueueView(gameDoc: DocumentSnapshot<GameDoc>): QueueView {
 
   // all non-hidden runs
   const runs = queueCollection.docs.filter((runDoc) => !runDoc.data().hidden);
+
+  // runs assigned to current user and no one (shown if they choose to hide runs claimed by others)
+  const runsAssignedToMeOrNoOne = queueCollection.docs.filter(
+    (runDoc) =>
+      runDoc.data().assignee === name || runDoc.data().assignee === undefined
+  );
 
   // runs assigned to current user
   const runsAssignedToMe = queueCollection.docs.filter(
@@ -52,8 +61,9 @@ export function useQueueView(gameDoc: DocumentSnapshot<GameDoc>): QueueView {
   const hiddenRuns = runsAssignedToMe.filter((run) => run.data().hidden);
 
   return {
-    runsAssignedToMe,
     runs,
+    runsAssignedToMe,
+    runsAssignedToMeOrNoOne,
     hiddenRuns,
     loading,
     error,

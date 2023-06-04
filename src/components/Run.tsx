@@ -12,7 +12,7 @@ interface Props {
   gameDoc: DocumentSnapshot<GameDoc>;
 }
 
-const Card = styled.div`
+const Card = styled.a`
   ${({ theme }) => css`
     width: 600px;
     margin: 10px 0;
@@ -34,7 +34,7 @@ const Card = styled.div`
       box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
     }
 
-    cursor: pointer;
+    text-decoration: none;
   `}
 `;
 
@@ -77,7 +77,14 @@ export const Run: React.FC<Props> = ({ runDoc, gameDoc }) => {
 
   const assignedToMe = run.assignee === name;
 
-  const handleSelect = async () => {
+  const handleSelect = async (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (event.ctrlKey) {
+      // do normal <a> behavior if ctrl is held down (i.e. open in new tab)
+      return;
+    }
+    // otherwise, prevent the link from opening and claim/unclaim the run
+    event.preventDefault();
+
     if (assignedToMe) {
       await setDoc(
         runDoc.ref,
@@ -100,6 +107,7 @@ export const Run: React.FC<Props> = ({ runDoc, gameDoc }) => {
   const handleHideRun = async (e: React.MouseEvent<HTMLButtonElement>) => {
     // don't fire handleSelect event
     e.stopPropagation();
+    e.preventDefault();
 
     await setDoc(runDoc.ref, { hidden: true }, { merge: true });
   };
@@ -107,12 +115,17 @@ export const Run: React.FC<Props> = ({ runDoc, gameDoc }) => {
   const handleShowRun = async (e: React.MouseEvent<HTMLButtonElement>) => {
     // don't fire handleSelect event
     e.stopPropagation();
+    e.preventDefault();
 
     await setDoc(runDoc.ref, { hidden: false }, { merge: true });
   };
 
   return (
-    <Card onClick={handleSelect}>
+    <Card
+      onClick={handleSelect}
+      href={`https://speedrun.com/run/${run.id}`}
+      target="_blank"
+    >
       <input
         type="checkbox"
         checked={Boolean(run.assignee)}

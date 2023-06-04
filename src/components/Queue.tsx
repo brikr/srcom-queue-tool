@@ -21,7 +21,10 @@ const List = styled.div`
 const Controls = styled.div`
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
   gap: 10px;
+
+  width: 640px;
 `;
 
 const DEFAULT_COPY_BUTTON_TEXT = "Copy claimed VOD URLs";
@@ -44,8 +47,14 @@ const COPY_SORTERS = {
 };
 
 export const Queue: React.FC<Props> = ({ gameDoc }) => {
-  const { runs, runsAssignedToMe, hiddenRuns, loading, error } =
-    useQueueView(gameDoc);
+  const {
+    runs,
+    runsAssignedToMeOrNoOne,
+    runsAssignedToMe,
+    hiddenRuns,
+    loading,
+    error,
+  } = useQueueView(gameDoc);
   const [updating, setUpdating] = useState(false);
   const [copyButtonText, setCopyButtonText] = useState(
     DEFAULT_COPY_BUTTON_TEXT
@@ -54,6 +63,10 @@ export const Queue: React.FC<Props> = ({ gameDoc }) => {
   const [preferredCopyOrder, setPreferredCopyOrder] = useLocalStorage(
     "preferredCopyOrder",
     "submitted"
+  );
+  const [hideClaimedRuns, setHideClaimedRuns] = useLocalStorage(
+    "hideClaimedRuns",
+    ""
   );
 
   // Update queue in firebase if needed
@@ -94,6 +107,16 @@ export const Queue: React.FC<Props> = ({ gameDoc }) => {
     setPreferredCopyOrder(e.target.value);
   };
 
+  const handleChangeHideClaimedRuns = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (e.target.checked) {
+      setHideClaimedRuns("true");
+    } else {
+      setHideClaimedRuns("");
+    }
+  };
+
   if (loading) {
     return <p>Loading...</p>;
   }
@@ -111,7 +134,11 @@ export const Queue: React.FC<Props> = ({ gameDoc }) => {
     <>
       <h2>Queue</h2>
       <p>
-        {runs.length} runs in queue. Last updated {lastUpdated} ago
+        {runs.length} runs in queue. Last updated {lastUpdated} ago.
+      </p>
+      <p>
+        Ctrl- or middle-click a run to open its speedrun.com page in a new tab
+        (this doesn&apos;t claim the run).
       </p>
       <Controls>
         <button onClick={handleUpdateQueueClick}>Update queue now</button>
@@ -126,9 +153,18 @@ export const Queue: React.FC<Props> = ({ gameDoc }) => {
           <option value="submitted">Submission time (earliest first)</option>
           <option value="duration">Run duration (shortest first)</option>
         </select>
+        <label htmlFor="hideClaimed">
+          <input
+            type="checkbox"
+            id="hideClaimed"
+            defaultChecked={Boolean(hideClaimedRuns)}
+            onChange={handleChangeHideClaimedRuns}
+          />
+          Hide runs claimed by others
+        </label>
       </Controls>
       <List>
-        {runs.map((runDoc) => (
+        {(hideClaimedRuns ? runsAssignedToMeOrNoOne : runs).map((runDoc) => (
           <Run key={runDoc.id} runDoc={runDoc} gameDoc={gameDoc} />
         ))}
       </List>
