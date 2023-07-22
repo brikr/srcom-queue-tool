@@ -12,6 +12,7 @@ export interface RunDoc {
   id: string;
   status: "new" | "verified" | "rejected";
   category: string;
+  level?: string | null;
   time: string;
   submitted: Timestamp;
   runner: string;
@@ -36,6 +37,11 @@ export interface GameDoc {
   srcomId: string;
   categories: {
     [categoryId: string]: {
+      name: string;
+    };
+  };
+  levels: {
+    [levelId: string]: {
       name: string;
     };
   };

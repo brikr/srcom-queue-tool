@@ -13,6 +13,7 @@ export interface ApiRun {
   // If a run is rejected, then all we have to go off of is the submitted datetime
   submitted: string;
   category: string;
+  level?: string | null;
   times: {
     realtime: string;
     ingame: string;
@@ -72,10 +73,18 @@ interface ApiVariable {
   };
 }
 
+export interface ApiLevel {
+  id: string;
+  name: string;
+}
+
 export interface ApiGame {
   id: string;
   names: {
     international: string;
+  };
+  levels: {
+    data: ApiLevel[];
   };
   categories: {
     data: ApiCategory[];

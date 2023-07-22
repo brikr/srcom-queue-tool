@@ -51,6 +51,7 @@ function mapApiRun(apiRun: ApiRun): RunDoc {
     status: apiRun.status.status,
     runner: apiRun.players.data[0].names.international,
     category: apiRun.category, // TODO
+    level: apiRun.level,
     time: apiRun.times.realtime,
     submitted: Timestamp.fromDate(new Date(apiRun.submitted)),
     platform: apiRun.system.platform, // TODO
@@ -129,6 +130,12 @@ function mapApiGame(apiGame: ApiGame): GameDoc {
       },
       {}
     ),
+    levels: apiGame.levels.data.reduce<GameDoc["levels"]>((acc, curr) => {
+      acc[curr.id] = {
+        name: curr.name,
+      };
+      return acc;
+    }, {}),
     platforms: apiGame.platforms.data.reduce<GameDoc["platforms"]>(
       (acc, curr) => {
         acc[curr.id] = {
@@ -174,7 +181,7 @@ export async function getGame(abbreviation: string): Promise<GameDoc> {
     const response = await axios.get<{ data: [ApiGame] }>(`${API_BASE}/games`, {
       params: {
         abbreviation,
-        embed: "categories,platforms,regions,variables",
+        embed: "categories,platforms,regions,variables,levels",
       },
     });
 
