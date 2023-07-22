@@ -14,7 +14,7 @@ export function formatDuration(isoDuration: string): string {
     minutes = `0${minutes}`;
   }
 
-  let seconds = `${parsedSeconds}`;
+  let seconds = String(parsedSeconds);
   if (parsedSeconds < 10) {
     seconds = `0${seconds}`;
   }
