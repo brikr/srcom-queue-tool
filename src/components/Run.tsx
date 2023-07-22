@@ -14,7 +14,8 @@ interface Props {
 
 const Card = styled.a`
   ${({ theme }) => css`
-    width: 600px;
+    min-width: 600px;
+    max-width: 800px;
     margin: 10px 0;
     padding: 10px 30px 10px 10px;
     border-radius: 5px;
@@ -67,10 +68,14 @@ export const Run: React.FC<Props> = ({ runDoc, gameDoc }) => {
 
   const run = useMemo(() => {
     const category = game?.categories[unmappedRun.category].name;
+    const level = unmappedRun.level
+      ? game?.levels[unmappedRun.level]?.name
+      : null;
 
     return {
       ...unmappedRun,
       category,
+      level,
       time: formatDuration(unmappedRun.time),
     };
   }, [unmappedRun, game]);
@@ -135,7 +140,9 @@ export const Run: React.FC<Props> = ({ runDoc, gameDoc }) => {
       <CardContent>
         <CardRow>
           <p>
-            {run.category} in {run.time} by {run.runner}
+            {run.category}
+            {run.level ? <> ({run.level})</> : null} in {run.time} by{" "}
+            {run.runner}
             {run.videos.length === 0 && " (no video)"}
           </p>
           <p>Submitted {formatDistanceToNow(run.submitted.toDate())} ago</p>
