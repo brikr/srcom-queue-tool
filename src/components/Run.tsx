@@ -83,10 +83,13 @@ export const Run: React.FC<Props> = ({ runDoc, gameDoc }) => {
   const assignedToMe = run.assignee === name;
 
   const handleSelect = async (event: React.MouseEvent<HTMLAnchorElement>) => {
-    if (event.ctrlKey) {
+    const isMac = navigator.platform.toLowerCase().indexOf("mac") >= 0;
+
+    if (event.ctrlKey || (isMac && event.metaKey)) {
       // do normal <a> behavior if ctrl is held down (i.e. open in new tab)
       return;
     }
+
     // otherwise, prevent the link from opening and claim/unclaim the run
     event.preventDefault();
 
