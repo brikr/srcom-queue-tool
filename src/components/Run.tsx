@@ -70,11 +70,11 @@ const ShoutOutTag = styled.span`
 `;
 
 const shoutoutTimes: { [key: string]: number } = {
-  "120": moment.duration({ hours: 1, minutes: 50 }).asMilliseconds(),
-  "70": moment.duration({ minutes: 51 }).asMilliseconds(),
-  "16": moment.duration({ minutes: 16 }).asMilliseconds(),
-  "1": moment.duration({ minutes: 7, seconds: 40 }).asMilliseconds(),
-  "0": moment.duration({ minutes: 7 }).asMilliseconds(),
+  "120 Star": moment.duration({ hours: 1, minutes: 50 }).asMilliseconds(),
+  "70 Star": moment.duration({ minutes: 51 }).asMilliseconds(),
+  "16 Star": moment.duration({ minutes: 16 }).asMilliseconds(),
+  "1 Star": moment.duration({ minutes: 7, seconds: 40 }).asMilliseconds(),
+  "0 Star": moment.duration({ minutes: 7 }).asMilliseconds(),
 };
 
 export const Run: React.FC<Props> = ({ runDoc, gameDoc }) => {
@@ -89,7 +89,6 @@ export const Run: React.FC<Props> = ({ runDoc, gameDoc }) => {
 
   const run = useMemo(() => {
     const category = game?.categories[unmappedRun.category].name;
-    const categoryStarCount = parseInt(category || "");
 
     const level = unmappedRun.level
       ? game?.levels[unmappedRun.level]?.name
@@ -98,7 +97,6 @@ export const Run: React.FC<Props> = ({ runDoc, gameDoc }) => {
     return {
       ...unmappedRun,
       category,
-      categoryStarCount,
       level,
       time: formatDuration(unmappedRun.time),
       timeParsed: durationToMillis(unmappedRun.time),
@@ -150,7 +148,7 @@ export const Run: React.FC<Props> = ({ runDoc, gameDoc }) => {
     await setDoc(runDoc.ref, { hidden: false }, { merge: true });
   };
 
-  const shoutoutTime = shoutoutTimes[run.categoryStarCount];
+  const shoutoutTime = shoutoutTimes[run.category || ""];
   const isShoutout =
     shoutoutTime !== undefined && run.timeParsed < shoutoutTime;
 
