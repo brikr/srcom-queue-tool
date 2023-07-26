@@ -1,6 +1,5 @@
 import { formatDistanceToNow } from "date-fns";
 import { DocumentSnapshot, setDoc } from "firebase/firestore";
-import moment from "moment";
 import React, { useMemo } from "react";
 import { useRecoilState } from "recoil";
 import { nameSelector } from "../recoil/name";
@@ -69,12 +68,16 @@ const ShoutOutTag = styled.span`
   vertical-align: top;
 `;
 
+const SECONDS_MILLISECONDS = 1000;
+const MINUTES_MILLISECONDS = 60 * SECONDS_MILLISECONDS;
+const HOURS_MILLISECONDS = 60 * MINUTES_MILLISECONDS;
+
 const shoutoutTimes: { [key: string]: number } = {
-  "120 Star": moment.duration({ hours: 1, minutes: 50 }).asMilliseconds(),
-  "70 Star": moment.duration({ minutes: 51 }).asMilliseconds(),
-  "16 Star": moment.duration({ minutes: 16 }).asMilliseconds(),
-  "1 Star": moment.duration({ minutes: 7, seconds: 40 }).asMilliseconds(),
-  "0 Star": moment.duration({ minutes: 7 }).asMilliseconds(),
+  "120 Star": HOURS_MILLISECONDS + 50 * MINUTES_MILLISECONDS, // 1h50
+  "70 Star": 51 * MINUTES_MILLISECONDS, // 51m
+  "16 Star": 16 * MINUTES_MILLISECONDS, // 16m
+  "1 Star": 7 * MINUTES_MILLISECONDS + 40 * SECONDS_MILLISECONDS, // 7m40
+  "0 Star": 7 * MINUTES_MILLISECONDS, // 7m
 };
 
 export const Run: React.FC<Props> = ({ runDoc, gameDoc }) => {
@@ -149,8 +152,7 @@ export const Run: React.FC<Props> = ({ runDoc, gameDoc }) => {
   };
 
   const shoutoutTime = shoutoutTimes[run.category || ""];
-  const isShoutout =
-    shoutoutTime !== undefined && run.timeParsed < shoutoutTime;
+  const isShoutout = run.timeParsed < shoutoutTime;
 
   return (
     <Card
