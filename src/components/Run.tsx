@@ -5,7 +5,7 @@ import { useRecoilState } from "recoil";
 import { nameSelector } from "../recoil/name";
 import { css, styled } from "../theme";
 import { GameDoc, RunDoc } from "../types/firestore";
-import { formatDuration } from "../util/duration";
+import { durationToMillis, formatDuration } from "../util/duration";
 
 interface Props {
   runDoc: DocumentSnapshot<RunDoc>;
@@ -56,6 +56,30 @@ const ClaimedText = styled.p`
   margin-top: 0;
 `;
 
+const ShoutOutTag = styled.span`
+  margin-left: 7px;
+  border: 1px solid darkblue;
+  background-color: dodgerblue;
+  color: whitesmoke;
+  font-weight: bolder;
+  padding: 2px 5px;
+  border-radius: 5px;
+  font-size: 0.7em;
+  vertical-align: top;
+`;
+
+const SECONDS_MILLISECONDS = 1000;
+const MINUTES_MILLISECONDS = 60 * SECONDS_MILLISECONDS;
+const HOURS_MILLISECONDS = 60 * MINUTES_MILLISECONDS;
+
+const shoutoutTimes: { [key: string]: number } = {
+  "120 Star": HOURS_MILLISECONDS + 50 * MINUTES_MILLISECONDS, // 1h50
+  "70 Star": 51 * MINUTES_MILLISECONDS, // 51m
+  "16 Star": 16 * MINUTES_MILLISECONDS, // 16m
+  "1 Star": 7 * MINUTES_MILLISECONDS + 40 * SECONDS_MILLISECONDS, // 7m40
+  "0 Star": 7 * MINUTES_MILLISECONDS, // 7m
+};
+
 export const Run: React.FC<Props> = ({ runDoc, gameDoc }) => {
   const [name] = useRecoilState(nameSelector);
 
@@ -68,6 +92,7 @@ export const Run: React.FC<Props> = ({ runDoc, gameDoc }) => {
 
   const run = useMemo(() => {
     const category = game?.categories[unmappedRun.category].name;
+
     const level = unmappedRun.level
       ? game?.levels[unmappedRun.level]?.name
       : null;
@@ -77,6 +102,7 @@ export const Run: React.FC<Props> = ({ runDoc, gameDoc }) => {
       category,
       level,
       time: formatDuration(unmappedRun.time),
+      timeParsed: durationToMillis(unmappedRun.time),
     };
   }, [unmappedRun, game]);
 
@@ -128,6 +154,9 @@ export const Run: React.FC<Props> = ({ runDoc, gameDoc }) => {
     await setDoc(runDoc.ref, { hidden: false }, { merge: true });
   };
 
+  const shoutoutTime = shoutoutTimes[run.category || ""];
+  const isShoutout = run.timeParsed < shoutoutTime;
+
   return (
     <Card
       onClick={handleSelect}
@@ -147,6 +176,7 @@ export const Run: React.FC<Props> = ({ runDoc, gameDoc }) => {
             {run.level ? <> ({run.level})</> : null} in {run.time} by{" "}
             {run.runner}
             {run.videos.length === 0 && " (no video)"}
+            {isShoutout && <ShoutOutTag>Shoutout</ShoutOutTag>}
           </p>
           <p>Submitted {formatDistanceToNow(run.submitted.toDate())} ago</p>
         </CardRow>
