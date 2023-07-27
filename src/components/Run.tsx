@@ -93,9 +93,10 @@ export const Run: React.FC<Props> = ({ runDoc, gameDoc }) => {
   const run = useMemo(() => {
     const category = game?.categories[unmappedRun.category].name;
 
-    const level = unmappedRun.level
-      ? game?.levels[unmappedRun.level]?.name
-      : null;
+    const level =
+      game?.levels && unmappedRun.level
+        ? game?.levels[unmappedRun.level]?.name
+        : null;
 
     return {
       ...unmappedRun,
