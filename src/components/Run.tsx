@@ -94,7 +94,7 @@ export const Run: React.FC<Props> = ({ runDoc, gameDoc }) => {
     const category = game?.categories[unmappedRun.category].name;
 
     const level = unmappedRun.level
-      ? game?.levels[unmappedRun.level]?.name
+      ? game?.levels?.[unmappedRun.level]?.name
       : null;
 
     return {
